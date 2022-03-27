@@ -23,7 +23,7 @@ const CoinPage = () => {
     setCoin(data);
   };
 
-  console.log(coin);
+  // console.log(coin);
 
   useEffect(() => {
     fetchCoin();
