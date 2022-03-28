@@ -1,5 +1,7 @@
 // import React from "react";
 import { useNavigate } from "react-router-dom";
+import AuthModal from "./Authentification/AuthModal";
+import UserSidebar from "./Authentification/UserSidebar";
 
 // ? styles imports
 import {
@@ -41,7 +43,7 @@ const Header = () => {
   const classes = useStyles();
   const navigate = useNavigate();
 
-  const {currency, setCurrency} = CryptoState();
+  const {currency, setCurrency, user} = CryptoState();
 
   console.log(currency);
 
@@ -78,6 +80,7 @@ const Header = () => {
                 NGN
               </MenuItem>
             </Select>
+            {user ? <UserSidebar /> : <AuthModal />}
           </Toolbar>
         </Container>
       </AppBar>
