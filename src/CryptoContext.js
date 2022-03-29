@@ -1,8 +1,9 @@
 import axios from "axios";
 import {onAuthStateChanged} from 'firebase/auth';
-import {auth} from './config/firebase';
+import {auth, db} from './config/firebase';
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { CoinList } from "./config/Api";
+import { doc, onSnapshot } from "firebase/firestore";
 
 const Crypto = createContext();
 
@@ -17,6 +18,7 @@ const CryptoContext = ({ children }) => {
     message: "",
     type: "success" 
   });
+  const [watchlist, setWatchlist] = useState([])
 
     const fetchCoins = async () => {
       setLoading(true);
@@ -40,6 +42,23 @@ const CryptoContext = ({ children }) => {
       userState();
     }, [])
 
+    useEffect(() => {
+      if(user){
+        const coinRef = doc(db, "watchlist", user?.uid);
+        const unsubscribe = onSnapshot(coinRef, (coin) => {
+          if(coin.exists()){
+            console.log(coin.data().coins);
+           setWatchlist(coin.data().coins); 
+          }else{
+            console.log("No Items in Watchlist");
+          }
+        });
+        return () => {
+          unsubscribe();
+        }
+      }
+    },[user])
+
     console.log(user);
 
   useEffect(() => {
@@ -54,7 +73,7 @@ const CryptoContext = ({ children }) => {
 
 
   return (
-    <Crypto.Provider value={{ currency, symbol, setCurrency, coins, loading, fetchCoins, alert, setAlert, user, setUser }}>
+    <Crypto.Provider value={{ currency, symbol, setCurrency, coins, loading, fetchCoins, alert, setAlert, user, setUser, watchlist }}>
       {children}
     </Crypto.Provider>
   );

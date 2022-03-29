@@ -7,13 +7,15 @@ import { useParams } from "react-router-dom";
 import CoinInfo from "../components/CoinInfo";
 
 import ReactHtmlParser from "react-html-parser";
-import { LinearProgress, makeStyles, Typography } from "@material-ui/core";
+import { Button, LinearProgress, makeStyles, Typography } from "@material-ui/core";
 import { numberWithCommas } from "../components/Banner/Carousel";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../config/firebase";
 
 const CoinPage = () => {
   const [coin, setCoin] = useState();
 
-  const { currency, symbol } = CryptoState();
+  const { currency, symbol, user, setAlert, watchlist } = CryptoState();
 
   const { id } = useParams();
 
@@ -66,12 +68,15 @@ const CoinPage = () => {
       padding: 25,
       paddingTop: 10,
       width: "100%",
+
       // ? responsiiiiiiiiiive
       [theme.breakpoints.down("md")]: {
         display: "flex",
+        flexDirection: "column",
         justifyContent: "space-around",
       },
       [theme.breakpoints.down("sm")]: {
+        display: "flex",
         flexDirection: "column",
         alignItems: "center",
       },
@@ -88,6 +93,54 @@ const CoinPage = () => {
       <LinearProgress style={{ backgroundColor: "gold" }}></LinearProgress>
     );
   }
+
+  const inWatchlist = watchlist.includes(coin?.id);
+
+  const addTowatchlist = async () => {
+    const coinRef = doc(db, "watchlist", user.uid);
+
+    try{
+      await setDoc(coinRef, {
+        coins: watchlist ? [...watchlist, coin?.id] : [coin?.id],
+      })
+      setAlert({
+        open: true,
+        message: `${coin.name} Added to the Watchlist`,
+        type: "success"
+      })
+    }catch(error){
+      setAlert({
+        open: true,
+        message: error.message,
+        type: "error"
+      })
+    }
+  }
+
+  const removeFromWatchlist = async () => {
+    const coinRef = doc(db, "watchlist", user.uid);
+
+    try {
+      await setDoc(coinRef, {
+        coins: watchlist.filter((watch) => watch !== coin?.id)
+      },
+      {merge: "true"}
+      );
+      setAlert({
+        open: true,
+        message: `${coin.name} Removed from watchlist !`,
+        type: "success"
+      })
+    }catch(error){
+      setAlert({
+        open: true,
+        message: error.message,
+        type: "error"
+      })
+    }
+
+  }
+
 
   return (
     <div className={classes.container}>
@@ -145,6 +198,21 @@ const CoinPage = () => {
               M
             </Typography>
           </span>
+
+            {user && (
+              <Button
+                variant="outlined"
+                style={{ 
+                  width: "100%",
+                  height: 40,
+                  backgroundColor: inWatchlist ? "#ff0000" : "#EEBC1D"
+                 }}
+                 onClick={inWatchlist ? removeFromWatchlist : addTowatchlist}
+              >
+                {inWatchlist ? "Remove from watchlist" : "Add to watchlist" }
+              </Button>
+            )}
+
         </div>
       </div>
 
