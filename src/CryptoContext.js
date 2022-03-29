@@ -40,6 +40,7 @@ const CryptoContext = ({ children }) => {
       userState();
     }, [])
 
+    console.log(user);
 
   useEffect(() => {
     if (currency === "NGN") {
@@ -48,6 +49,8 @@ const CryptoContext = ({ children }) => {
       return setSymbol("$");
     }
   }, [currency]);
+
+  
 
 
   return (
