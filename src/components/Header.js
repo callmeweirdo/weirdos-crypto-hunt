@@ -57,7 +57,7 @@ const Header = () => {
               onClick={() => navigate("/")}
               className={classes.title}
             >
-              Bridgets Crypto Hunt
+              Weirdos Crypto Hunt
             </Typography>
             <Select
               variant="outlined"
